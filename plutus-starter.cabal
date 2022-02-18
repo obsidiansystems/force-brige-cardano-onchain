@@ -43,6 +43,7 @@ library
     exposed-modules:
       MyModule
       Plutus.Contracts.Game
+      Plutus.Contracts.Bridge
     build-depends:
       base >= 4.9 && < 5,
       aeson,
@@ -54,6 +55,7 @@ library
       plutus-tx-plugin,
       plutus-tx,
       plutus-ledger,
+      bech32,
     hs-source-dirs: src examples/src
 
 test-suite plutus-example-projects-test
