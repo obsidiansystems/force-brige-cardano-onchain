@@ -4,7 +4,7 @@
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE FlexibleContexts           #-}
-{-# LANGUAGE OverloadedStrings           #-}
+{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
@@ -30,6 +30,7 @@ import           Ledger                (Address, Datum (Datum), ScriptContext, V
 import qualified Ledger
 import qualified Ledger.Ada            as Ada
 import qualified Ledger.Constraints    as Constraints
+import           Ledger.Address
 import           Ledger.Tx             (ChainIndexTxOut (..))
 import qualified Ledger.Typed.Scripts  as Scripts
 import           Playground.Contract
@@ -41,12 +42,17 @@ import qualified Prelude               as Haskell
 import           Plutus.Trace.Emulator (EmulatorTrace)
 import qualified Plutus.Trace.Emulator as Trace
 import qualified PlutusTx.Builtins.Class as Builtins
-import Codec.Binary.Bech32
+import qualified Prelude as Haskell (Semigroup (..), Show, foldMap)
 
 type CKBAddress = BuiltinByteString
 
 type BridgeSchema =
   Endpoint "lock" LockParams
+  .\/ Endpoint "verifiers" [PubKeyHash]
+
+newtype Threshold = Threshold { unThreshold :: Haskell.Int }
+  deriving stock (Haskell.Eq, Haskell.Show, Generic)
+  deriving anyclass (FromJSON, ToJSON, ToSchema, PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
 
 -- | Parameters for the "lock" endpoint
 data LockParams = LockParams
@@ -98,7 +104,6 @@ lockTrace wallet secretWord = do
     void $ Trace.waitNSlots 1
     Trace.callEndpoint @"lock" hdl (LockParams "ckb1qyqrdsefa43s6m882pcj53m4gdnj4k440axqdt9rtd" (Ada.adaValueOf 10))
     void $ Trace.waitNSlots 1
-
 
 mkSchemaDefinitions ''BridgeSchema
 {-
