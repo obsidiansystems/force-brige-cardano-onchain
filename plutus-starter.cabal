@@ -43,6 +43,7 @@ library
     exposed-modules:
       MyModule
       Plutus.Contracts.Bridge
+      Plutus.Contracts.Locker
     build-depends:
       base >= 4.9 && < 5,
       aeson,

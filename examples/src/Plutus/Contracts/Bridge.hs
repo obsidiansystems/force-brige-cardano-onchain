@@ -48,28 +48,22 @@ import Data.Aeson (FromJSON, ToJSON)
 
 type CKBAddress = BuiltinByteString
 
-type BridgeSchema =
-  Endpoint "lock" LockParams
-  .\/ Endpoint "verifiers" [Ledger.PaymentPubKeyHash]
-
-newtype Threshold = Threshold { unThreshold :: Haskell.Int }
+data VerifierInfo =
+  VerifierInfo { keyhashes :: [Ledger.PaymentPubKeyHash]
+               , threshold :: Haskell.Integer
+               }
   deriving stock (Haskell.Eq, Haskell.Show, Generic)
   deriving anyclass (FromJSON, ToJSON, PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
 
--- | Parameters for the "lock" endpoint
-data LockParams = LockParams
-    { ckbAddress :: CKBAddress
-    , amount     :: Value
-    }
-    deriving stock (Haskell.Eq, Haskell.Show, Generic)
-    deriving anyclass (FromJSON, ToJSON, PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
+PlutusTx.makeLift ''VerifierInfo
 
-PlutusTx.makeLift ''LockParams
+type BridgeSchema =
+  Endpoint "verifiers" VerifierInfo
 
 data Bridge
 instance Scripts.ValidatorTypes Bridge where
-  type instance RedeemerType Bridge = LockParams
-  type instance DatumType Bridge = BuiltinByteString
+  type instance RedeemerType Bridge = VerifierInfo
+  type instance DatumType Bridge = VerifierInfo
 
 -- | The address of the bridge (the hash of its validator script)
 bridgeAddress :: Address
@@ -80,33 +74,35 @@ bridgeValidator = Scripts.validatorScript bridgeInstance
 
 bridgeInstance :: Scripts.TypedValidator Bridge
 bridgeInstance = Scripts.mkTypedValidator @Bridge
-    $$(PlutusTx.compile [|| validateLock ||])
+    $$(PlutusTx.compile [|| validateUpdateVerifiers ||])
     $$(PlutusTx.compile [|| wrap ||]) where
-        wrap = Scripts.wrapValidator @BuiltinByteString @LockParams
+        wrap = Scripts.wrapValidator @VerifierInfo @VerifierInfo
 
--- TODO(skylar): Validate CKB Address
--- | The "lock" contract endpoint. See note [Contract endpoints]
-lock :: AsContractError e => Promise () BridgeSchema e ()
-lock = endpoint @"lock" @LockParams $ \(LockParams ckbAddr amt) -> do
-    logInfo @Haskell.String $ "Locking ada to send to " <> (C.unpack $ Builtins.fromBuiltin ckbAddr)
-    let tx         = Constraints.mustPayToTheScript ckbAddr amt
-    void (submitTxConstraints bridgeInstance tx)
+verifiers :: AsContractError e => Promise () BridgeSchema e ()
+verifiers = endpoint @"verifiers" @VerifierInfo $ \vi -> do
+    logInfo @Haskell.String $ "Setting verifiers and threshold " -- <> (C.unpack $ Builtins.fromBuiltin vi)
+    let tx         = Constraints.mustPayToTheScript vi mempty
+    void $ submitTxConstraints bridgeInstance tx
 
-validateLock :: BuiltinByteString -> LockParams -> ScriptContext -> Bool
-validateLock hs cs _ = True
+validateUpdateVerifiers :: VerifierInfo -> VerifierInfo -> ScriptContext -> Bool
+validateUpdateVerifiers _ _ _ = True
+-- validateUpdateVerifiers (VerifierInfo hashes _ ) cs _
+--  | null hashes = True
+--  | otherwise = elem cs hashes
 
 bridge :: AsContractError e => Contract () BridgeSchema e ()
 bridge = do
     logInfo @Haskell.String "Waiting for guess or lock endpoint..."
-    selectList [lock] >> bridge
+    selectList [verifiers] >> bridge
 
+{-
 lockTrace :: Wallet -> Haskell.String -> EmulatorTrace ()
 lockTrace wallet secretWord = do
     hdl <- Trace.activateContractWallet wallet (lock @ContractError)
     void $ Trace.waitNSlots 1
     Trace.callEndpoint @"lock" hdl (LockParams "ckb1qyqrdsefa43s6m882pcj53m4gdnj4k440axqdt9rtd" (Ada.adaValueOf 10))
     void $ Trace.waitNSlots 1
-
+-}
 -- mkSchemaDefinitions ''BridgeSchema
 {-
 correctGuessTrace :: EmulatorTrace ()
