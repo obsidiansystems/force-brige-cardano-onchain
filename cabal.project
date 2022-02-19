@@ -17,12 +17,14 @@ source-repository-package
     freer-extras
     playground-common
     plutus-contract
+    plutus-chain-index-core
     plutus-chain-index
+    plutus-ledger-constraints
     plutus-ledger
     plutus-pab
     plutus-use-cases
     quickcheck-dynamic
-  tag: plutus-starter-devcontainer/v1.0.14
+  tag: 7bb80c0e2ae6fa8ea394810a6e4d804f2707a84a
 
 
 -- The following sections are copied from the 'plutus-apps' repository cabal.project at the revision
@@ -127,17 +129,24 @@ source-repository-package
   tag: d2f86caa085402a953920c6714a0de6a50b655ec
   subdir:
     core
+    command-line
 
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-wallet
-  tag: ae7569293e94241ef6829139ec02bd91abd069df
+  tag: 760140e238a5fbca61d1b286d7a80ece058dc729
+  --sha256: 014njpddrlqm9bbab636h2gf58zkm0bx04i1jsn07vh5j3k0gri6
   subdir:
+    lib/dbvar
     lib/text-class
     lib/strict-non-empty-containers
     lib/core
     lib/test-utils
     lib/numeric
+    lib/launcher
+    lib/core-integration
+    lib/cli
+    lib/shelley
 
 source-repository-package
   type: git
@@ -186,8 +195,9 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/input-output-hk/cardano-ledger-specs
+  location: https://github.com/input-output-hk/cardano-ledger
   tag: bf008ce028751cae9fb0b53c3bef20f07c06e333
+  --sha256: 0my3801w1vinc0kf5yh9lxl6saqxgwm6ccg0vvzi104pafcwwcqx
   subdir:
     byron/ledger/impl
     cardano-ledger-core
@@ -200,9 +210,14 @@ source-repository-package
     eras/byron/ledger/impl/test
     eras/shelley/impl
     eras/shelley-ma/impl
+    eras/shelley/chain-and-ledger/executable-spec
+    eras/shelley/test-suite
+    shelley/chain-and-ledger/shelley-spec-ledger-test
     libs/non-integral
     libs/small-steps
+    libs/cardano-ledger-pretty
     semantics/small-steps-test
+
 
 -- A lot of plutus-apps dependencies have to be synchronized with the dependencies of
 -- cardano-node. If you update cardano-node, please make sure that all dependencies
@@ -236,14 +251,14 @@ source-repository-package
 -- plutus. If you update plutus, please make sure that all dependencies of plutus
 -- are also updated
 source-repository-package
-  type: git
-  location: https://github.com/input-output-hk/plutus
-  tag: 3f089ccf0ca746b399c99afe51e063b0640af547
-  subdir:
-    plutus-core
-    plutus-ledger-api
-    plutus-tx
-    plutus-tx-plugin
-    word-array
-    prettyprinter-configurable
-    stubs/plutus-ghc-stub
+ type: git
+ location: https://github.com/input-output-hk/plutus
+ tag: 2721c59fd2302b75c4138456c29fd5b509e8340a
+ subdir:
+   plutus-ledger-api
+   word-array
+   prettyprinter-configurable
+   stubs/plutus-ghc-stub
+   plutus-core
+   plutus-tx
+   plutus-tx-plugin

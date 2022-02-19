@@ -26,7 +26,6 @@ import qualified Plutus.PAB.Effects.Contract.Builtin as Builtin
 import           Plutus.PAB.Simulator                (SimulatorEffectHandlers)
 import qualified Plutus.PAB.Simulator                as Simulator
 import qualified Plutus.PAB.Webserver.Server         as PAB.Server
-import           Plutus.Contracts.Game               as Game
 import           Plutus.Contracts.Bridge             as Bridge
 import           Plutus.Trace.Emulator.Extract       (writeScriptsTo, ScriptsConfig (..), Command (..))
 import           Ledger.Index                        (ValidatorMode(..))
@@ -66,7 +65,7 @@ writeCostingScripts = do
 
 
 data StarterContracts =
-    GameContract | BridgeContract
+    BridgeContract
     deriving (Eq, Ord, Show, Generic)
     deriving anyclass OpenApi.ToSchema
 
@@ -88,12 +87,10 @@ instance Pretty StarterContracts where
     pretty = viaShow
 
 instance Builtin.HasDefinitions StarterContracts where
-    getDefinitions = [GameContract, BridgeContract]
+    getDefinitions = [BridgeContract]
     getSchema =  \case
-        GameContract -> Builtin.endpointsToSchemas @Game.GameSchema
         BridgeContract -> Builtin.endpointsToSchemas @Bridge.BridgeSchema
     getContract = \case
-        GameContract -> SomeBuiltin (Game.game @ContractError)
         BridgeContract -> SomeBuiltin (Bridge.bridge @ContractError)
 
 handlers :: SimulatorEffectHandlers (Builtin StarterContracts)

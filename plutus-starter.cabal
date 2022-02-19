@@ -42,7 +42,6 @@ library
     import: lang
     exposed-modules:
       MyModule
-      Plutus.Contracts.Game
       Plutus.Contracts.Bridge
     build-depends:
       base >= 4.9 && < 5,
@@ -50,8 +49,8 @@ library
       bytestring,
       containers,
       freer-extras,
-      playground-common,
       plutus-contract,
+      plutus-ledger-constraints,
       plutus-tx-plugin,
       plutus-tx,
       plutus-ledger,

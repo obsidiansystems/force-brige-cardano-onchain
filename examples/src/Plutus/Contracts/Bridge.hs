@@ -21,6 +21,7 @@
 
 module Plutus.Contracts.Bridge where
 
+import GHC.Generics
 import           Control.Monad         (void)
 import qualified Data.ByteString.Char8 as C
 import           Data.Map              (Map)
@@ -33,7 +34,7 @@ import qualified Ledger.Constraints    as Constraints
 import           Ledger.Address
 import           Ledger.Tx             (ChainIndexTxOut (..))
 import qualified Ledger.Typed.Scripts  as Scripts
-import           Playground.Contract
+-- import           Playground.Contract
 import           Plutus.Contract
 import           Plutus.Contract.Trace as X
 import qualified PlutusTx
@@ -43,16 +44,17 @@ import           Plutus.Trace.Emulator (EmulatorTrace)
 import qualified Plutus.Trace.Emulator as Trace
 import qualified PlutusTx.Builtins.Class as Builtins
 import qualified Prelude as Haskell (Semigroup (..), Show, foldMap)
+import Data.Aeson (FromJSON, ToJSON)
 
 type CKBAddress = BuiltinByteString
 
 type BridgeSchema =
   Endpoint "lock" LockParams
-  .\/ Endpoint "verifiers" [PubKeyHash]
+  .\/ Endpoint "verifiers" [Ledger.PaymentPubKeyHash]
 
 newtype Threshold = Threshold { unThreshold :: Haskell.Int }
   deriving stock (Haskell.Eq, Haskell.Show, Generic)
-  deriving anyclass (FromJSON, ToJSON, ToSchema, PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
+  deriving anyclass (FromJSON, ToJSON, PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
 
 -- | Parameters for the "lock" endpoint
 data LockParams = LockParams
@@ -60,7 +62,7 @@ data LockParams = LockParams
     , amount     :: Value
     }
     deriving stock (Haskell.Eq, Haskell.Show, Generic)
-    deriving anyclass (FromJSON, ToJSON, ToSchema, PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
+    deriving anyclass (FromJSON, ToJSON, PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
 
 PlutusTx.makeLift ''LockParams
 
@@ -105,7 +107,7 @@ lockTrace wallet secretWord = do
     Trace.callEndpoint @"lock" hdl (LockParams "ckb1qyqrdsefa43s6m882pcj53m4gdnj4k440axqdt9rtd" (Ada.adaValueOf 10))
     void $ Trace.waitNSlots 1
 
-mkSchemaDefinitions ''BridgeSchema
+-- mkSchemaDefinitions ''BridgeSchema
 {-
 correctGuessTrace :: EmulatorTrace ()
 correctGuessTrace = do

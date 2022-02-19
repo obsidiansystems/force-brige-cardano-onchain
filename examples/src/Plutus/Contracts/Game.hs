@@ -47,10 +47,10 @@ import           Data.Maybe            (catMaybes)
 import           Ledger                (Address, Datum (Datum), ScriptContext, Validator, Value)
 import qualified Ledger
 import qualified Ledger.Ada            as Ada
-import qualified Ledger.Constraints    as Constraints
+-- import qualified Ledger.Constraints    as Constraints
 import           Ledger.Tx             (ChainIndexTxOut (..))
 import qualified Ledger.Typed.Scripts  as Scripts
-import           Playground.Contract
+-- import           Playground.Contract
 import           Plutus.Contract
 import           Plutus.Contract.Trace as X
 import qualified PlutusTx
@@ -58,6 +58,7 @@ import           PlutusTx.Prelude      hiding (pure, (<$>))
 import qualified Prelude               as Haskell
 import           Plutus.Trace.Emulator (EmulatorTrace)
 import qualified Plutus.Trace.Emulator as Trace
+import Data.Aeson
 
 newtype HashedString = HashedString BuiltinByteString deriving newtype (PlutusTx.ToData, PlutusTx.FromData, PlutusTx.UnsafeFromData)
 
