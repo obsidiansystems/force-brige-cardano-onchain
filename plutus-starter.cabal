@@ -43,7 +43,6 @@ library
     exposed-modules:
       MyModule
       Plutus.Contracts.Bridge
-      Plutus.Contracts.Locker
     build-depends:
       base >= 4.9 && < 5,
       aeson,
@@ -51,11 +50,12 @@ library
       containers,
       freer-extras,
       plutus-contract,
+      lens,
       plutus-ledger-constraints,
       plutus-tx-plugin,
       plutus-tx,
       plutus-ledger,
-      bech32,
+      text
     hs-source-dirs: src examples/src
 
 test-suite plutus-example-projects-test

@@ -65,7 +65,7 @@ writeCostingScripts = do
 
 
 data StarterContracts =
-    BridgeContract | LockerContract
+    BridgeContract
     deriving (Eq, Ord, Show, Generic)
     deriving anyclass OpenApi.ToSchema
 
@@ -89,11 +89,9 @@ instance Pretty StarterContracts where
 instance Builtin.HasDefinitions StarterContracts where
     getDefinitions = [BridgeContract]
     getSchema =  \case
-        BridgeContract -> Builtin.endpointsToSchemas @Bridge.BridgeSchema
-        LockerContract -> Builtin.endpointsToSchemas @Locker.LockerSchema
+      BridgeContract -> Builtin.endpointsToSchemas @Bridge.BridgeSchema
     getContract = \case
-        BridgeContract -> SomeBuiltin (Bridge.bridge @ContractError)
-        LockerContract -> SomeBuiltin (Locker.locker @ContractError)
+      Bridge.BridgeSchema -> SomeBuiltin (Bridge.bridge @ContractError)
 
 handlers :: SimulatorEffectHandlers (Builtin StarterContracts)
 handlers =
