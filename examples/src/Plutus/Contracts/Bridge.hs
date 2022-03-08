@@ -139,6 +139,7 @@ validSettings bs =
   traceIfFalse "Threshold can't be more than the amount of verifiers" (threshold <= numVerifiers) &&
   traceIfFalse "Minimum shouldn't be negative" (minAmount > 0) &&
   traceIfFalse "Fees shouldn't be negative" (fees > 0)
+  traceIfFalse "Threshold must be at least 1" (threshold > 0)
   where
     numVerifiers = length $ bridgeSettingsVerifiers bs
     threshold = bridgeSettingsThreshold bs
@@ -186,7 +187,7 @@ type BridgeSchema =
 bridge :: Contract () BridgeSchema T.Text ()
 bridge = do
   logInfo @Haskell.String "Waiting for verifiers..."
-  selectList [init, update] >> bridge
+  selectList [init, update, lock, unlock] >> bridge
 
 init :: AsContractError e => Promise () BridgeSchema e ()
 init = endpoint @"init" @InitParams $ \(InitParams bs v) -> do
