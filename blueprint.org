@@ -1,0 +1,70 @@
+#+TITLE: Blueprint
+
+* Contract Description
+
+The main purpose of this contract is to give the endpoint for the contract a constant
+address when the verifiers change, as well as of course serving as the bridge Lock/Unlock on
+the cardano side.
+
+Governance (the verifiers) are the only ones who can unlock utxos at the script, and can also change the verifiers and bridge settings
+
+* Content
+
+transactions:
+    lock:
+      inputs:
+        scriptUtxo:
+          datum: BridgeSettings
+
+      pkUtxo:
+        value: v
+        satisfies: v must contain at an amount greater than 0 after fees
+
+      outputs:
+        scriptUtxo:
+          datum: LockRecord
+
+    unlock:
+      inputs:
+        scriptUtxo:
+          datum: BridgeSettings
+          satisfies: valid bridge settings
+
+        scriptUtxo:
+          value: v
+          datum: LockRecord
+
+      outputs:
+        pkUtxo:
+          value v
+
+        scriptUtxo:
+          datum: BridgeSettings
+
+    update:
+      inputs:
+        scriptUtxo:
+          datum: BridgeSettings
+          satisfies: valid bridge settings
+
+      outputs:
+        scriptUtxo:
+          datum: BridgeSettings
+          satisfies: valid bridge settings
+
+* Tx Flow
+
+flow:
+  init:
+    from: initial
+    to: bridgeSettings(n)
+
+  update:
+    from: bridgeSettings(n)
+    to: bridgeSettings(n+1)
+
+  lock:
+    id: bridgeSettings(n)
+
+  unlock:
+    id: bridgeSettings(n)
