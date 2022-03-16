@@ -42,7 +42,12 @@ library
     import: lang
     exposed-modules:
       MyModule
-      Plutus.Contracts.Bridge
+      -- Plutus.Contracts.Bridge
+      ForceBridge
+      ForceBridge.Trace
+      ForceBridge.Orphans
+      MultiSig
+      Spec.MultiSig
     build-depends:
       base >= 4.9 && < 5,
       aeson,
@@ -55,7 +60,13 @@ library
       plutus-tx-plugin,
       plutus-tx,
       plutus-ledger,
-      text
+      text,
+      tasty,
+      tasty-quickcheck,
+      tasty-hunit,
+      QuickCheck,
+      generic-arbitrary,
+      freer-simple
     hs-source-dirs: src examples/src
 
 test-suite plutus-example-projects-test
